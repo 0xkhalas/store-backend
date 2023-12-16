@@ -1,0 +1,16 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4.4.0"
+json = "0.12.4"
+serde = { version = "1.0.13", features = ["derive"] }
+validator = { version = "0.16.1", features = ["derive"] }
+sqlx = { version = "0.7.3", features = ["runtime-tokio", "sqlite"]}
+serde_json = "1.0"
+jsonwebtoken = "9.2.0"
+chrono = "0.4.0"
