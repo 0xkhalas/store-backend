@@ -1,3 +1,3 @@
 pub mod db;
-pub mod user;
-pub mod product;
+pub mod users;
+pub mod products;

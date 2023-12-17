@@ -1,11 +1,7 @@
-use std::rc::Rc;
-
-use super::user::Users;
-
+#[derive(Clone)]
 pub struct Db {
     pub pool: sqlx::Pool<sqlx::Sqlite>,
 }
-
 
 impl Db {
     pub async fn new() -> Db {
@@ -37,17 +33,19 @@ impl Db {
         .expect("Database can't create table messages");
 
         // products
-       // sqlx::query(
-       //     r"create table if not exists products (
-       //        message_id varchar(64),
-       //        user_id varchar(64),
-       //        content text,
-       //        PRIMARY KEY (message_id)
-       //    )",
-       // )
-       // .execute(&self.pool)
-       // .await
-       // .expect("Database can't create table messages");
+        sqlx::query(
+            r"create table if not exists products (
+               name varchar(64),
+               description varchar(64),
+               categorie varchar(64),
+               price int,
+               count int,
+               image text
+           )",
+        )
+        .execute(&self.pool)
+        .await
+        .expect("Database can't create table messages");
 
     }
 }

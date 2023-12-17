@@ -1,19 +1,22 @@
 use std::future::{Ready, ready};
-use actix_web::{FromRequest, http::{header::HeaderValue, self}, error::ErrorUnauthorized, test::ok_service, Error};
-use jsonwebtoken::{TokenData, DecodingKey, decode, Algorithm, Validation};
+use actix_web::{FromRequest, error::ErrorUnauthorized, http};
 use serde::{ Serialize, Deserialize };
+
+use crate::utils::jwt::decode_jwt;
 
 
 #[derive(Serialize, Deserialize)]
 pub struct AuthorizationToken {
-    pub id: usize
+    pub email: String,
+    pub password: String,
+    pub token: String
 }
 
 impl FromRequest for AuthorizationToken {
     type Error = actix_web::Error;
     type Future = Ready<Result<Self, Self::Error>>;
 
-    fn from_request(req: &actix_web::HttpRequest, payload: &mut actix_web::dev::Payload) -> Self::Future {
+    fn from_request(req: &actix_web::HttpRequest, _payload: &mut actix_web::dev::Payload) -> Self::Future {
         let secret = String::from("secret");
 
         // get auth
@@ -26,16 +29,12 @@ impl FromRequest for AuthorizationToken {
         if auth_token.is_empty() { return ready(Err(ErrorUnauthorized("Invalid auth token!"))); }
 
         // decode token
-        let decoded: Result<TokenData<AuthorizationToken>, jsonwebtoken::errors::Error> = decode(
-            &auth_token,
-            &DecodingKey::from_secret(secret.as_str().as_ref()),
-            &Validation::new(Algorithm::HS256)
-        );
+        let decode = decode_jwt(auth_token.to_string(), secret);
 
         // return Token
-        match decoded {
-            Ok(token) => ready(Ok(AuthorizationToken {id: token.claims.id})),
-            Err(_) => ready(Err(ErrorUnauthorized("Unauthorized!")))
+        match decode {
+            Some(o) => ready(Ok(o.data)),
+            None => ready(Err(ErrorUnauthorized("Unauthorized!")))
         }
     }
 
